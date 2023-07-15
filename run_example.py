@@ -3,6 +3,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow import keras
+from gf import _gf_gray
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -33,23 +34,54 @@ for i in range(image_shape[0]):
         prob_map[i][j] = result[i][j] / 255
 
 
-eps = 0.0001
+e = 0.0001
 
 image_enhanced = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
 for i in range(image_shape[0]):
     for j in range(image_shape[1]):
         for k in range(3):
-            r = int(image[i][j][k] / (1 - prob_map[i][j] + eps))
-            if r < 255:
-                image_enhanced[i][j][k] = r
-            else:
-                image_enhanced[i][j][k] = 255
+            res = int(image[i][j][k] / (1 - prob_map[i][j] + e))
+            image_enhanced[i][j][k] = res if res < 255 else 255
 
 
-cv2.imwrite('Example/image_enhanced.jpg', image_enhanced)
+cv2.imwrite('Example/image_enhanced_norefining.jpg', image_enhanced)
 
 
 plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
 plt.show()
 plt.imshow(cv2.cvtColor(image_enhanced, cv2.COLOR_BGR2RGB))
+plt.show()
+
+
+# Refining
+gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+r = 150
+eps = 0.001
+guided = _gf_gray(result, gray_image, r=r, eps=eps, s=None)
+cv2.imwrite(f'Example/gd-{r}-{eps}.jpg', guided)
+
+
+
+ref_prob_map = np.zeros((image_shape[0], image_shape[1]), dtype=float)
+
+for i in range(image_shape[0]):
+    for j in range(image_shape[1]):
+        ref_prob_map[i][j] = guided[i][j] / 255
+
+
+e = 0.0001
+
+image_enhanced_ref = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
+for i in range(image_shape[0]):
+    for j in range(image_shape[1]):
+        for k in range(3):
+            res = int(image[i][j][k] / (1 - ref_prob_map[i][j] + e))
+            image_enhanced_ref[i][j][k] = res if res < 255 else 255
+
+
+cv2.imwrite(f'Example/image_enhanced_refined({r},{eps}).jpg', image_enhanced_ref)
+
+
+plt.imshow(cv2.cvtColor(image_enhanced_ref, cv2.COLOR_BGR2RGB))
 plt.show()
