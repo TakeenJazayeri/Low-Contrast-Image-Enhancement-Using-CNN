@@ -3,7 +3,7 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow import keras
-from gf import _gf_gray
+from guided_filter import guided_filter_gray
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -51,7 +51,7 @@ gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
 r = 150
 eps = 0.001
-guided = _gf_gray(result, gray_image, r=r, eps=eps, s=None)
+guided = guided_filter_gray(result, gray_image, r=r, eps=eps, s=None)
 cv2.imwrite(f'Example/gd-{r}-{eps}.jpg', guided)
 
 
