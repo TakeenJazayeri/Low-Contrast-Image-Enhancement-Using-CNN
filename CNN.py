@@ -1,11 +1,9 @@
 import numpy as np
 import os, cv2
 from tensorflow import keras
-from tensorflow.keras import layers
-from tensorflow.keras.layers.experimental import preprocessing
 from transformation import rotate_10_right, rotate_10_left, flip
 from random import sample
-import pandas as pd
+from unet_model import build_Unet_mdel
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
@@ -46,38 +44,26 @@ X_val = np.array(X_val)
 Y_val = np.array(Y_val)
 
 
-model = keras.Sequential([
-    # Feature Extraction Step
-    layers.Conv2D(filters=64, kernel_size=3, activation="relu", padding='same', input_shape=[row, col, 3]),
-    layers.MaxPool2D(2),
-    
-    layers.Conv2D(filters=64, kernel_size=3, activation="relu", padding='same'),
-    layers.MaxPool2D(2),
-
-    layers.Conv2D(filters=128, kernel_size=3, activation="relu", padding='same'),
-    layers.MaxPool2D(2),
-
-    layers.Conv2D(filters=256, kernel_size=3, activation="relu", padding='same'),
-    layers.Conv2D(filters=256, kernel_size=3, activation="relu", padding='same'),
-
-    # Probability Reconstraction Step
-    layers.Conv2DTranspose(filters=128, kernel_size=3, activation="relu", padding='same'),
-    layers.UpSampling2D((2, 2), interpolation='bilinear'),
-
-    layers.Conv2DTranspose(filters=64, kernel_size=3, activation="relu", padding='same'),
-    layers.UpSampling2D((2, 2), interpolation='bilinear'),
-
-    layers.Conv2DTranspose(filters=32, kernel_size=3, activation="relu", padding='same'),
-    layers.UpSampling2D((2, 2), interpolation='bilinear'),
-
-    layers.Conv2D(filters=1, kernel_size=3, activation="relu", padding='same'),
-])
+model = build_Unet_mdel(row, col)
 
 model.compile(optimizer = 'adam', loss = keras.losses.MeanSquaredError())
 
 history = model.fit(
     X_train, Y_train, validation_data=(X_val, Y_val),
-    batch_size=5, epochs=10, verbose=1
+    batch_size=5, epochs=1, verbose=1
 )
 
 model.save('cnn_model')
+
+
+# RESULT OF RUNNING:
+# Epoch 1/5
+# 256/256 [==============================] - 1873s 7s/step - loss: 30829.3438 - val_loss: 23312.3945
+# Epoch 2/5
+# 256/256 [==============================] - 1856s 7s/step - loss: 10147.9492 - val_loss: 3533.6685
+# Epoch 3/5
+# 256/256 [==============================] - 1849s 7s/step - loss: 3605.4712 - val_loss: 3158.5308
+# Epoch 4/5
+# 256/256 [==============================] - 1830s 7s/step - loss: 3569.5601 - val_loss: 4154.7910
+# Epoch 5/5
+# 256/256 [==============================] - 1733s 7s/step - loss: 3450.5513 - val_loss: 3157.0552

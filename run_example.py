@@ -46,13 +46,6 @@ for i in range(image_shape[0]):
 
 cv2.imwrite('Example/image_enhanced_norefining.jpg', image_enhanced)
 
-
-plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-plt.show()
-plt.imshow(cv2.cvtColor(image_enhanced, cv2.COLOR_BGR2RGB))
-plt.show()
-
-
 # Refining
 gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -82,6 +75,13 @@ for i in range(image_shape[0]):
 
 cv2.imwrite(f'Example/image_enhanced_refined({r},{eps}).jpg', image_enhanced_ref)
 
+
+
+plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+plt.show()
+
+plt.imshow(cv2.cvtColor(image_enhanced, cv2.COLOR_BGR2RGB))
+plt.show()
 
 plt.imshow(cv2.cvtColor(image_enhanced_ref, cv2.COLOR_BGR2RGB))
 plt.show()
