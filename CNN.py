@@ -50,7 +50,7 @@ model.compile(optimizer = 'adam', loss = keras.losses.MeanSquaredError())
 
 history = model.fit(
     X_train, Y_train, validation_data=(X_val, Y_val),
-    batch_size=5, epochs=1, verbose=1
+    batch_size=5, epochs=5, verbose=1
 )
 
 model.save('cnn_model')
